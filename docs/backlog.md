@@ -1,126 +1,89 @@
-# Milestone 1 — Bootstrap
+# Product Backlog
 
-The first delivery is the **Bootstrap** milestone.
+This document provides a high-level overview of the product backlog.
 
-It will include:
-
-- Project builds successfully
-- Docker configured and running
-- PostgreSQL with pgvector
-- FastAPI
-- Swagger/OpenAPI
-- Health Check endpoint
-- Poetry
-- Alembic
-- Centralized configuration
-- Project structure ready for feature development
+Detailed specifications are maintained in the corresponding Epic and User Story documents.
 
 ---
 
-# Backlog
+# EPIC-001 — Foundation
 
-The project will be organized into small User Stories.
+**Status**
 
-## EPIC 1 — Bootstrap
+🟡 In Progress
 
-### Story 1 — Initialize the Project
+**Objective**
 
-#### Acceptance Criteria
+Establish the technical foundation required to begin developing Cortex.
 
-- Poetry is configured
-- Git repository is initialized
-- README is created
-- Project directory structure is created
-
----
-
-### Story 2 — Configure FastAPI
-
-#### Acceptance Criteria
-
-- Application starts successfully
-- Swagger UI is available
-- OpenAPI specification is available
+| ID | Story | Status |
+|----|-------|--------|
+| US-001 | Bootstrap Project | 🟡 In Progress |
 
 ---
 
-### Story 3 — Configure PostgreSQL
+# EPIC-002 — Knowledge Ingestion
 
-#### Acceptance Criteria
+**Status**
 
-- Docker services start successfully
-- Database connection is established
+⚪ Planned
 
----
+**Objective**
 
-### Story 4 — Configure Alembic
+Import, process, and index organizational knowledge from Confluence.
 
-#### Acceptance Criteria
-
-- Initial database migration is created
-
----
-
-### Story 5 — Health Check Endpoint
-
-#### Acceptance Criteria
-
-**Request**
-
-```http
-GET /health
-```
-
-**Response**
-
-```json
-{
-  "status": "ok"
-}
-```
+| ID | Story | Status |
+|----|-------|--------|
+| US-002 | Import Confluence Documents | ⚪ Planned |
+| US-003 | Chunk Documents | ⚪ Planned |
+| US-004 | Generate Embeddings | ⚪ Planned |
 
 ---
 
-# Development Workflow
+# EPIC-003 — Question Answering
 
-```text
-Backlog
-    ↓
-Design
-    ↓
-Implementation
-    ↓
-Testing
-    ↓
-Documentation
-    ↓
-Commit
-```
+**Status**
 
----
+⚪ Planned
 
-# Definition of Done
+**Objective**
 
-A task is considered complete only when **all** of the following criteria are met:
+Allow users to ask natural language questions using the indexed knowledge base.
 
-- Code has been implemented
-- Unit tests have been created and are passing
-- Logging has been added where appropriate
-- Documentation has been updated
-- No linting errors
-- Type checks pass
-- Project builds successfully
-- Docker environment is working
-- All acceptance criteria have been fully satisfied
+| ID | Story | Status |
+|----|-------|--------|
+| US-005 | Search Relevant Chunks | ⚪ Planned |
+| US-006 | Generate Answer | ⚪ Planned |
+| US-007 | Ask Question | ⚪ Planned |
 
 ---
 
-# Branch Strategy
+# EPIC-004 — Slack Integration
 
-```text
-main
-└── feature/bootstrap
-    ├── feature/confluence-ingestion
-    ├── feature/rag-search
-    └── feature/slack-bot
-```
+**Status**
+
+⚪ Planned
+
+**Objective**
+
+Expose Cortex through Slack.
+
+| ID | Story | Status |
+|----|-------|--------|
+| US-008 | Slack Events Integration | ⚪ Planned |
+| US-009 | Slack Bot | ⚪ Planned |
+| US-010 | Source Citations | ⚪ Planned |
+
+---
+
+# MVP Scope
+
+The MVP is considered complete when all User Stories from EPIC-001 through EPIC-004 are completed.
+
+---
+
+# Notes
+
+This backlog intentionally contains only product functionality.
+
+Engineering improvements and technical debt are tracked separately in `technical-debt.md`.

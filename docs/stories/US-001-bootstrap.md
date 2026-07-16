@@ -24,14 +24,14 @@ So that contributors can start developing features in a reproducible environment
 
 ## Acceptance Criteria
 
-- [ ] Poetry project configured
-- [ ] FastAPI application starts
-- [ ] Docker Compose starts successfully
-- [ ] PostgreSQL with pgvector is available
-- [ ] Swagger UI is accessible
-- [ ] Health endpoint implemented
-- [ ] Configuration centralized
-- [ ] README updated
+- [x] Poetry project configured
+- [x] FastAPI application starts
+- [x] Docker Compose starts successfully
+- [x] PostgreSQL with pgvector is available
+- [x] Swagger UI is accessible
+- [x] Health endpoint implemented
+- [x] Configuration centralized
+- [x] README updated
 
 ---
 
@@ -52,7 +52,7 @@ So that contributors can start developing features in a reproducible environment
 - docker-compose.yml
 - Makefile
 - README.md
-- .env.example
+- .env
 - Health endpoint
 
 ---

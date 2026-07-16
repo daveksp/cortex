@@ -2,7 +2,7 @@
 
 ## Status
 
-🟡 In Progress
+🟢 Completed
 
 > Planned | In Progress | Blocked | Completed | Cancelled
 
@@ -83,7 +83,7 @@ This Epic is considered complete when:
 
 | ID | Story | Status |
 |----|-------|--------|
-| US-001 | Bootstrap Project | 🟡 In Progress |
+| US-001 | Bootstrap Project | 🟢 Completed |
 
 Future stories may be added as needed.
 

@@ -30,7 +30,7 @@ Entities have identity and lifecycle within the system.
 
 | Entity | Responsibility | Attributes |
 |---------|----------------|------------|
-| `Document` | Represents a knowledge document imported into Cortex. | `id`, `title`, `url`, `space`, `last_modified` |
+| `Document` | Represents a knowledge document imported into Cortex. | `id`, `title`, `url`, `last_modified` |
 | `Chunk` | Represents a searchable fragment of a document. | `id`, `document_id`, `content`, `embedding` |
 
 ---
@@ -89,7 +89,7 @@ The application layer coordinates the domain through the following use cases.
 
 | Use Case | Category | Responsibility | Input | Output |
 |-----------|----------|----------------|-------|--------|
-| `ImportConfluenceDocumentsUseCase` | Command | Imports documentation from Confluence and stores searchable content. | Source configuration | Indexed documents and chunks |
+| `ImportConfluenceDocumentsUseCase` | Command | Imports documentation from Knowledge repository and stores searchable content. | Source configuration | Indexed documents and chunks |
 | `SearchRelevantChunksUseCase` | Query | Retrieves the most relevant chunks for a given question. | `Question` | Up to five `Chunk`s |
 | `GenerateAnswerUseCase` | Query | Generates an answer using the retrieved context. | `Question`, retrieved chunks | `Answer` |
 | `AskQuestionUseCase` | Facade | Orchestrates the complete question-answer workflow. | `Question` | `Answer` |

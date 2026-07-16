@@ -23,13 +23,13 @@ The business logic should remain independent from infrastructure concerns, allow
 
 ## Decision
 
-Cortex will implement the Hexagonal Architecture (Ports and Adapters pattern).
+Cortex adopts the Hexagonal Architecture (Ports and Adapters pattern).
 
 Dependencies must always point toward the application's core.
 
 The dependency flow is:
 
-```
+```text
 Presentation
         │
         ▼
@@ -39,16 +39,32 @@ Application
 Domain
 ```
 
-Infrastructure implements interfaces defined by the Application layer.
+The Application layer defines the contracts that govern communication with the outside world.
 
-```
-                Application
-                     ▲
-                     │
-              Port (Interface)
-                     ▲
-                     │
-Infrastructure Adapter (Implementation)
+These contracts are divided into:
+
+- **Inbound Ports**, representing the capabilities exposed by the application.
+- **Outbound Ports**, representing the external capabilities required by the application.
+
+Inbound Ports are implemented by Application Use Cases.
+
+Outbound Ports are implemented by Infrastructure Adapters.
+
+```text
+                Presentation
+                      │
+                      ▼
+             Inbound Port (Protocol)
+                      │
+                      ▼
+                 Application
+                  (Use Case)
+                      │
+                      ▼
+            Outbound Port (Protocol)
+                      │
+                      ▼
+         Infrastructure Adapter
 ```
 
 ---
@@ -76,6 +92,8 @@ The Domain layer must not depend on:
 - Configuration
 - Logging
 
+The Domain layer contains business rules only and remains independent of frameworks and infrastructure.
+
 ---
 
 ### Application
@@ -84,32 +102,54 @@ The Application layer orchestrates business use cases.
 
 It contains:
 
+- Application Models
+- Inbound Ports
+- Outbound Ports
 - Use Cases
-- Ports
-- DTOs
 
-Application defines interfaces for external dependencies but never implements them.
+#### Inbound Ports
 
-Examples:
+Inbound Ports define the operations exposed by the application.
+
+They are implemented by Application Use Cases and consumed by Presentation adapters.
+
+Examples include:
+
+- ImportKnowledge
+- AskQuestion
+- SearchKnowledge
+
+#### Outbound Ports
+
+Outbound Ports define the external capabilities required by the application.
+
+They are implemented by Infrastructure adapters.
+
+Examples include:
 
 - DocumentRepository
+- ChunkRepository
 - EmbeddingProvider
-- ConfluenceClient
+- KnowledgeSource
+
+The Application layer depends only on these abstractions and never on concrete implementations.
 
 ---
 
 ### Infrastructure
 
-Infrastructure implements the ports defined by the Application layer.
+Infrastructure implements the Outbound Ports defined by the Application layer.
 
 Examples include:
 
-- PostgreSQL repositories
-- OpenAI client
-- Confluence client
-- Slack adapter
+- PostgreSQLDocumentRepository
+- PostgreSQLChunkRepository
+- ConfluenceKnowledgeSource
+- OpenAIEmbeddingProvider
 
-Infrastructure may depend on external frameworks and SDKs.
+Infrastructure may depend on external frameworks, SDKs, databases and third-party services.
+
+Infrastructure must never contain business rules.
 
 ---
 
@@ -123,19 +163,55 @@ Examples include:
 - Slack Events
 - Future CLI
 
-Presentation communicates only with the Application layer.
+Presentation communicates exclusively through Inbound Ports.
 
-It must not access Infrastructure directly.
+It must never invoke Infrastructure directly.
+
+Presentation is responsible for:
+
+- Request validation
+- Authentication (when applicable)
+- Mapping transport models into Application Models
+- Invoking Application Use Cases
+- Mapping responses back to transport models
 
 ---
 
 ## Ports
 
-Every external dependency must be represented by a Port.
+Ports define the communication contracts between the Application layer and the outside world.
+
+### Inbound Port
+
+Defines a capability offered by the application.
+
+Implemented by a Use Case.
 
 Example:
 
+```text
+Presentation
+
+↓
+
+ImportKnowledge (Inbound Port)
+
+↓
+
+ImportKnowledgeUseCase
 ```
+
+---
+
+### Outbound Port
+
+Defines a capability required by the application.
+
+Implemented by an Infrastructure Adapter.
+
+Example:
+
+```text
 Application
 
 EmbeddingProvider
@@ -147,7 +223,7 @@ Infrastructure
 OpenAIEmbeddingProvider
 ```
 
-This allows implementations to be replaced without modifying business logic.
+This approach allows infrastructure implementations to evolve independently without modifying business logic.
 
 ---
 
@@ -157,7 +233,7 @@ Dependencies must always point inward.
 
 Allowed:
 
-```
+```text
 Presentation → Application
 
 Application → Domain
@@ -169,7 +245,7 @@ Infrastructure → Domain
 
 Not allowed:
 
-```
+```text
 Domain → Infrastructure
 
 Application → Infrastructure
@@ -177,39 +253,49 @@ Application → Infrastructure
 Presentation → Infrastructure
 ```
 
+Use Cases depend only on Outbound Ports.
+
+Presentation depends only on Inbound Ports.
+
+Infrastructure depends on the contracts defined by the Application layer.
+
 ---
 
 ## Benefits
 
 - Technology independence
-- Testability
-- Maintainability
 - Clear separation of responsibilities
-- Easier replacement of infrastructure components
-- Better support for future integrations
+- High testability
+- Stable business logic
+- Replaceable infrastructure
+- Explicit application boundaries
+- Easier future integrations
 
 ---
 
 ## Consequences
 
-Positive
+### Positive
 
 - Reduced coupling.
 - Easier unit testing.
 - Stable business logic.
 - Infrastructure can evolve independently.
+- Explicit contracts between layers.
+- Improved maintainability.
 
-Negative
+### Negative
 
 - Additional abstractions.
 - More interfaces.
 - Slightly higher initial complexity.
+- Requires discipline to maintain dependency direction.
 
 ---
 
 ## Future Considerations
 
-As Cortex evolves, new integrations should be introduced by implementing new adapters rather than modifying existing business logic.
+As Cortex evolves, new integrations should be introduced by implementing new Infrastructure Adapters rather than modifying existing business logic.
 
 Examples include:
 
@@ -219,4 +305,6 @@ Examples include:
 - Google Gemini
 - Microsoft Teams
 
-The Application and Domain layers should remain unchanged when introducing these integrations.
+Likewise, new Presentation adapters (such as GraphQL, gRPC or additional messaging platforms) should consume existing Inbound Ports without requiring changes to the Application or Domain layers.
+
+The Application and Domain layers should remain stable while integrations evolve independently.

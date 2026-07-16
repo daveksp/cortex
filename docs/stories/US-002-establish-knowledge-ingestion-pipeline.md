@@ -25,7 +25,7 @@ So that documents become searchable by future retrieval capabilities.
 ## Acceptance Criteria
 
 - [ ] Knowledge ingestion use case implemented
-- [ ] Knowledge source abstraction defined
+- [x] Knowledge source abstraction defined
 - [ ] Documents imported into the domain
 - [ ] Documents split into searchable chunks
 - [ ] Embeddings generated

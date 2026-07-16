@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "cortex"
+version = "0.1.0"
+description = "Slack AI Knowledge Assistant"
+authors = ["Cortex Team"]
+readme = "README.md"
+packages = [{ include = "cortex", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.32.0" }
+sqlalchemy = "^2.0.0"
+psycopg = { extras = ["binary"], version = "^3.2.0" }
+pgvector = "^0.3.0"
+pydantic
+pydantic-settings = "^2.0.0"
+httpx
+python-dotenv
+structlog = "^25.4.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio
+pytest-cov = "^6.0.0"
+factory-boy = "^3.3.0"
+ruff = "^0.8.0"
+mypy
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=cortex --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage.run]
+branch = true
+source = ["cortex"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

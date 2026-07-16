@@ -1,28 +1,26 @@
 """
-Aggregate Root: Document
+Architecture Notes
 
-A Document represents a single knowledge artifact ingested into Cortex.
+Document is the Aggregate Root of the knowledge ingestion domain.
 
-The Aggregate Root owns the lifecycle of its associated Chunks from a
-business perspective. Every Chunk must belong to exactly one Document and
-cannot exist independently.
+A Document represents a single knowledge artifact indexed by Cortex,
+regardless of its origin (Confluence, Notion, SharePoint, GitHub Wiki,
+local files, etc.).
 
-The relationship between Document and Chunk is intentionally modeled as a
-logical aggregate rather than an in-memory object graph.
+Although a Document conceptually owns its Chunks, it intentionally does
+not expose them as an in-memory collection.
 
 Reasons:
 
-- A single document may produce hundreds or thousands of chunks.
-- Loading all chunks whenever a Document is retrieved would be inefficient.
-- Chunk persistence and retrieval are optimized independently by the
-  persistence layer.
+- A single document may generate hundreds or thousands of chunks.
+- Loading every Chunk whenever a Document is retrieved would be inefficient.
+- Chunk persistence and retrieval are optimized independently.
 
-Therefore, the aggregate boundary is enforced conceptually by the
-application layer and repository implementations rather than by keeping an
-in-memory collection of Chunks inside the Document entity.
+Aggregate consistency is enforced by the Application layer and repository
+implementations rather than through an in-memory object graph.
 
-This approach preserves the business invariant while allowing efficient
-storage and retrieval strategies.
+This keeps the domain model lightweight while preserving the Aggregate
+semantics defined by Domain-Driven Design.
 """
 
 
@@ -31,6 +29,7 @@ from datetime import datetime
 from uuid import UUID
 
 from cortex.domain.enums.knowledge_source import KnowledgeSource
+from cortex.domain.exceptions.domain_exception import DomainException
 
 
 """
@@ -45,19 +44,35 @@ large object graphs into memory.
 This decision optimizes ingestion and retrieval while preserving the
 aggregate semantics.
 """
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class Document:
+    """
+    Represents a knowledge artifact indexed by Cortex.
+
+    A Document contains the metadata required to identify a knowledge
+    artifact independently of the underlying knowledge source.
+
+    Responsibilities
+    ----------------
+    - Identify a knowledge artifact.
+    - Preserve its origin.
+    - Provide metadata for retrieval and traceability.
+
+    Invariants
+    ----------
+    - Every Document has a unique identifier.
+    - Every Document belongs to exactly one Knowledge Source.
+    - Every Document has exactly one external identifier within its source.
+
+    Lifecycle
+    ---------
+    Documents are created during the ingestion pipeline and remain
+    immutable afterwards.
+    """
+
     id: UUID
     source: KnowledgeSource
     external_id: str
-    """
-    Reference to the owning Document.
-
-    A direct object reference is intentionally avoided to prevent loading the
-    entire aggregate into memory and to keep the domain model lightweight.
-
-    Aggregate consistency is enforced by the application layer.
-    """
     
     title: str
     url: str
@@ -65,4 +80,8 @@ class Document:
 
     created_at: datetime
     updated_at: datetime
+
+    def __post_init__(self) -> None:
+        if not self.title.strip():
+            raise DomainException("Document title cannot be empty.")
 

@@ -10,34 +10,18 @@ from cortex.application.models.import_knowledge_response import (
 
 class ImportKnowledge(Protocol):
     """
-    Defines the contract for importing knowledge into Cortex.
+    Defines the application's knowledge ingestion use case.
 
-    This Inbound Port represents the capability exposed by the
-    Application layer to ingest knowledge from external sources.
+    This Inbound Port exposes the capability of importing documents
+    from an external knowledge source into Cortex.
 
-    Implementations are responsible for orchestrating the complete
-    ingestion workflow, including document retrieval, processing,
-    embedding generation and persistence.
-
-    Presentation adapters interact with this contract rather than
-    directly with concrete Use Cases.
+    Presentation adapters interact exclusively with this interface,
+    remaining independent from the concrete implementation.
     """
 
-    def execute(
-        self,
-        request: ImportKnowledgeRequest,
-    ) -> ImportKnowledgeResponse:
+    def execute(self, request: ImportKnowledgeRequest) -> ImportKnowledgeResponse:
         """
-        Executes the knowledge ingestion workflow.
-
-        Parameters
-        ----------
-        request:
-            Parameters controlling the ingestion process.
-
-        Returns
-        -------
-        ImportKnowledgeResponse
-            A summary of the ingestion execution.
+        Imports documents into the Cortex knowledge base.
         """
         ...
+

@@ -20,6 +20,7 @@ impacting the domain.
 
 from dataclasses import dataclass
 from uuid import UUID
+from uuid import uuid4
 
 from cortex.domain.exceptions.domain_exception import DomainException
 
@@ -27,30 +28,44 @@ from cortex.domain.exceptions.domain_exception import DomainException
 @dataclass(slots=True)
 class Chunk:
     """
-    Represents a searchable fragment of a Document.
+    Represents a searchable fragment belonging to a Document.
 
-    Responsibilities
-    ----------------
-    - Preserve searchable textual content.
-    - Maintain its position within the original document.
-    - Preserve traceability to the owning Document.
+    Chunks are child entities within the Document Aggregate and must
+    never exist independently.
 
-    Invariants
-    ----------
-    - Every Chunk belongs to exactly one Document.
-    - Position is unique within a Document.
-    - Content must not be empty.
+    Chunk instances are created exclusively by the Document Aggregate
+    Root, ensuring that aggregate consistency is preserved.
 
-    Lifecycle
-    ---------
-    Chunks are produced during ingestion and remain immutable.
+    A Chunk contains only business information. Embeddings, vector
+    representations and indexing metadata belong to the Infrastructure
+    layer and are intentionally excluded from the Domain Model.
     """
 
     id: UUID
     document_id: UUID
-
-    position: int
+    index: int
     content: str
+
+    @classmethod
+    def create(
+        cls,
+        document_id: UUID,
+        index: int,
+        content: str,
+    ) -> "Chunk":
+        """
+        Creates a new Chunk.
+
+        This factory method is intended to be used only by the
+        Document Aggregate Root.
+        """
+
+        return cls(
+            id=uuid4(),
+            document_id=document_id,
+            index=index,
+            content=content,
+        )
 
     def __post_init__(self) -> None:
         if self.position < 0:

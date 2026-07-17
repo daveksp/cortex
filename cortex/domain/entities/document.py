@@ -24,62 +24,121 @@ semantics defined by Domain-Driven Design.
 """
 
 
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
+from uuid import uuid4
 
-from cortex.domain.enums.knowledge_source import KnowledgeSource
-from cortex.domain.exceptions.domain_exception import DomainException
+from .chunk import Chunk
 
 
-"""
-Note
-
-Document intentionally does not expose a collection of Chunks.
-
-Although Document is the Aggregate Root, Chunks are retrieved
-independently by repositories and application services to avoid loading
-large object graphs into memory.
-
-This decision optimizes ingestion and retrieval while preserving the
-aggregate semantics.
-"""
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Document:
     """
-    Represents a knowledge artifact indexed by Cortex.
+    Represents a knowledge document managed by Cortex.
 
-    A Document contains the metadata required to identify a knowledge
-    artifact independently of the underlying knowledge source.
+    Document is the Aggregate Root responsible for maintaining the
+    consistency of all Chunk entities that belong to it.
 
-    Responsibilities
-    ----------------
-    - Identify a knowledge artifact.
-    - Preserve its origin.
-    - Provide metadata for retrieval and traceability.
+    A Document models a single document imported from an external
+    knowledge source, preserving both its internal identity within
+    Cortex and its identity in the originating system.
 
-    Invariants
-    ----------
-    - Every Document has a unique identifier.
-    - Every Document belongs to exactly one Knowledge Source.
-    - Every Document has exactly one external identifier within its source.
+    Child Chunks must never be created, modified or removed directly
+    by external objects. Their lifecycle is entirely controlled by
+    the Aggregate Root.
 
-    Lifecycle
-    ---------
-    Documents are created during the ingestion pipeline and remain
-    immutable afterwards.
+    The Domain Model intentionally excludes infrastructure concerns
+    such as embeddings, vector databases and persistence details.
     """
 
     id: UUID
-    source: KnowledgeSource
-    external_id: str
-    
-    title: str
-    url: str
-    content: str
+    """
+    Internal identifier assigned by Cortex.
+    """
 
-    created_at: datetime
-    updated_at: datetime
+    source_id: str
+    """
+    Identifier assigned by the originating knowledge source.
+
+    This identifier is stable across synchronizations and allows
+    Cortex to detect updates and avoid importing duplicate documents.
+    """
+
+    title: str
+    """
+    Human-readable document title.
+    """
+
+    url: str
+    """
+    Canonical URL of the original document.
+    """
+
+    space: str
+    """
+    Logical namespace containing the document.
+    """
+
+    last_modified: datetime
+    """
+    Timestamp of the latest modification reported by the knowledge source.
+    """
+
+    chunks: list[Chunk] = field(default_factory=list)
+    """
+    Searchable fragments belonging to this Document Aggregate.
+    """
+
+    @classmethod
+    def create(
+        cls,
+        source_id: str,
+        title: str,
+        url: str,
+        space: str,
+        last_modified: datetime,
+    ) -> "Document":
+        """
+        Creates a new Document Aggregate.
+
+        The Aggregate is initially created without Chunks.
+        Chunks are populated later by the ingestion pipeline after the
+        document content has been processed by the ChunkingService.
+        """
+
+        return cls(
+            id=uuid4(),
+            source_id=source_id,
+            title=title,
+            url=url,
+            space=space,
+            last_modified=last_modified,
+        )
+
+    def replace_chunks(self, segments: list[str]) -> None:
+        """
+        Replaces every Chunk belonging to this Document.
+
+        Existing Chunks are discarded and recreated from the supplied
+        textual segments.
+
+        This operation is typically executed whenever the document is
+        imported or re-indexed.
+        """
+
+        self.chunks.clear()
+
+        for index, content in enumerate(segments):
+            self.chunks.append(
+                Chunk.create(
+                    document_id=self.id,
+                    index=index,
+                    content=content,
+                )
+            )
 
     def __post_init__(self) -> None:
         if not self.title.strip():

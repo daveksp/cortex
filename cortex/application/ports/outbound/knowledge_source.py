@@ -1,24 +1,29 @@
-from typing import Iterable, Protocol
+from collections.abc import Iterable
+from typing import Protocol
 
-from cortex.domain.entities.document import Document
+from cortex.application.models.knowledge_document import KnowledgeDocument
 
 
 class KnowledgeSource(Protocol):
     """
-    Provides documents from an external knowledge source.
+    Defines the contract for retrieving documents from an external
+    knowledge source.
 
-    Implementations are responsible for retrieving documents from
-    platforms such as Confluence, Notion or SharePoint and mapping
-    them into the domain model.
+    Implementations are responsible for communicating with external
+    platforms, such as Confluence, and translating provider-specific
+    representations into KnowledgeDocument instances.
+
+    The Application layer remains independent from transport protocols,
+    SDKs and external APIs.
     """
 
-    def fetch_documents(self) -> Iterable[Document]:
+    def fetch_documents(self) -> Iterable[KnowledgeDocument]:
         """
-        Fetches documents from the knowledge source.
+        Retrieves documents available in the configured knowledge source.
 
         Returns
         -------
-        Iterable[Document]
-            Documents ready to be processed by the application layer.
+        Iterable[KnowledgeDocument]
+            Documents ready to be processed by the ingestion pipeline.
         """
         ...

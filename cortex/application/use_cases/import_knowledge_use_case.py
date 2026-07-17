@@ -23,6 +23,8 @@ from cortex.application.services.chunking_service import (
     ChunkingService,
 )
 
+from cortex.domain.entities.document import Document
+
 
 class ImportKnowledgeUseCase(ImportKnowledge):
     """
@@ -97,4 +99,38 @@ class ImportKnowledgeUseCase(ImportKnowledge):
         ingestion pipeline is introduced throughout subsequent
         User Stories.
         """
-        raise NotImplementedError()
+        imported_documents = 0
+        imported_chunks = 0
+
+        for knowledge_document in self._knowledge_source.fetch_documents():
+            document = Document.create(
+                source_id=knowledge_document.source_id,
+                title=knowledge_document.title,
+                url=knowledge_document.url,
+                space=knowledge_document.space,
+                last_modified=knowledge_document.last_modified,
+                content=knowledge_document.content,
+            )
+
+            chunk_contents = self._chunking_service.split(document.content)
+            document.replace_chunks(chunk_contents)
+
+            embeddings = self._embedding_provider.generate(
+                [chunk.content for chunk in document.chunks]
+            )
+
+            self._document_repository.save(document)
+
+            self._chunk_repository.replace_chunks(
+                document.id,
+                document.chunks,
+                embeddings,
+            )
+
+            imported_documents += 1
+            imported_chunks += len(document.chunks)
+        
+        return ImportKnowledgeResponse(
+            documents_imported=imported_documents,
+            chunks_created=imported_chunks,
+        )

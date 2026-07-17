@@ -32,6 +32,7 @@ from uuid import UUID
 from uuid import uuid4
 
 from .chunk import Chunk
+from cortex.domain.exceptions.domain_exception import DomainException
 
 
 @dataclass(slots=True)

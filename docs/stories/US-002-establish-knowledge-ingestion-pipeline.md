@@ -46,15 +46,14 @@ So that documents become searchable by future retrieval capabilities.
 
 ## Deliverables
 
-- Domain entities
-- Application models
-- Application ports
-- ImportKnowledgeUseCase
-- Confluence adapter
-- Chunking service
-- Embedding provider
-- PostgreSQL repositories
-- Alembic migrations
+- Knowledge ingestion pipeline
+- Domain model for imported knowledge
+- Application layer orchestration
+- Confluence integration
+- Chunk generation
+- Embedding generation
+- PostgreSQL persistence
+- Database migrations
 
 ---
 

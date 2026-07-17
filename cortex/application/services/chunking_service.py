@@ -1,28 +1,52 @@
+from __future__ import annotations
+
+
 class ChunkingService:
     """
-    Splits textual content into searchable segments.
+    Splits document content into searchable text chunks.
 
-    The ChunkingService encapsulates the application's chunking strategy,
-    allowing different algorithms to be introduced without affecting the
-    Domain Model or the ingestion pipeline.
+    The service encapsulates the application's chunking strategy,
+    allowing the ingestion pipeline to remain independent from the
+    underlying implementation.
 
-    The service is intentionally unaware of Documents, Chunks,
-    embeddings or persistence concerns.
+    The initial implementation uses a simple fixed-size strategy.
+    More advanced algorithms may replace this implementation in
+    future iterations without affecting the Domain model.
     """
 
-    def split(self, content: str) -> list[str]:
+    def __init__(self, chunk_size: int = 1000) -> None:
         """
-        Splits a document into textual segments.
+        Initializes the chunking service.
 
         Parameters
         ----------
-        content:
-            Raw textual content extracted from a knowledge source.
+        chunk_size:
+            Maximum number of characters per chunk.
+        """
+
+        self._chunk_size = chunk_size
+
+    def split(self, content: str,) -> list[str]:
+        """
+        Splits content into ordered chunks.
+
+        Parameters
+        ----------
+        content: Plain textual content.
 
         Returns
         -------
-        list[str]
-            Ordered textual segments ready to be incorporated into a
-            Document Aggregate.
+        list[str] Ordered text chunks.
         """
-        ...
+
+        if not content:
+            return []
+
+        return [
+            content[index:index + self._chunk_size]
+            for index in range(
+                0,
+                len(content),
+                self._chunk_size,
+            )
+        ]

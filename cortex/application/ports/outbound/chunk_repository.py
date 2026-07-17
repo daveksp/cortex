@@ -1,19 +1,26 @@
-from typing import Iterable, Protocol
+from typing import Iterable
 from uuid import UUID
 
+from cortex.application.models.embedding import Embedding
 from cortex.domain.entities.chunk import Chunk
 
 
 class ChunkRepository(Protocol):
     """
-    Persists searchable chunks.
+    Persists the collection of searchable chunks belonging to a document.
     """
 
-    def replace_chunks(self, document_id: UUID, chunks: Iterable[Chunk],) -> None:
+    def replace_chunks(
+        self,
+        document_id: UUID,
+        chunks: Iterable[Chunk],
+        embeddings: Iterable[Embedding],
+    ) -> None:
         """
-        Replaces the current collection of Chunks.
+        Replaces the chunks associated with a document together with
+        their vector representations.
 
-        This operation is typically performed during
-        document re-indexing.
+        The repository implementation is responsible for associating
+        each embedding with its corresponding Chunk.
         """
         ...

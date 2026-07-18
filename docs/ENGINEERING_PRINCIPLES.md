@@ -248,6 +248,18 @@ Abstract only after recurring patterns emerge.
 - Avoid speculative abstractions.
 - Wait for repetition before creating reusable components.
 - Refactor based on evidence.
+- Do not introduce wrapper methods that merely delegate to existing behavior without adding meaningful business logic.
+- Prefer direct implementations until an abstraction demonstrates clear value through repeated use.
+
+### Examples
+
+Prefer:
+
+- using the aggregate constructor when reconstructing an entity from persistence.
+
+Instead of introducing methods such as `reconstruct()` that simply delegate to the constructor without encapsulating additional behavior.
+
+Factory methods should exist only when they encapsulate meaningful creation logic (for example, generating identifiers, initializing invariants, or applying business rules).
 
 ---
 

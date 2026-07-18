@@ -60,7 +60,6 @@ Example:
 database/
 
     engine.py
-    metadata.py
     tables.py
 
     repositories/
